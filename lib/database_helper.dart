@@ -7,15 +7,17 @@ import 'package:sqflite/sqflite.dart';
 class DatabaseHelper {
   static Database? _database;
 
-  Future<Database> get database async {
-    if (_database != null) return _database!;
+  Future<Database> getDatabase() async {
+    if (_database != null) {
+      return _database!;
+    }
     _database = await initDB();
     return _database!;
   }
 
   Future<Database> initDB() async {
-    var databasesPath = await getDatabasesPath();
-    String path = join(databasesPath, "jh16.db");
+    var dirPath = await getDatabasesPath();
+    String path = join(dirPath, "jh16.db");
 
     if (!await File(path).exists()) {
       ByteData data = await rootBundle.load("assets/jh16.db");
@@ -25,27 +27,25 @@ class DatabaseHelper {
     } else {
       print("📁 Database already exists.");
     }
-
-    // await getBoothsData();
     return await openDatabase(path);
   }
 
 
 
   Future<List<Map<String, dynamic>>> getBoothsData() async {
-    final db = await database;
+    final db = await getDatabase();
     var booths = await db.query("booth");
     return booths;
   }
 
    Future<List<Map<String, dynamic>>> fetchVotersByBooth(int partNo) async {
-    final db = await database;
+    final db = await getDatabase();
     print("partno is ::: $partNo");
     return await db.query('Mytable', where: 'partno = ?', whereArgs: [partNo]);
   }
 
   Future<List<Map<String, dynamic>>> searchVoters(String query) async {
-    final dbClient = await database;
+    final dbClient = await getDatabase();
 
     return await dbClient.rawQuery(
       '''
